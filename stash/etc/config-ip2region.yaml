@@ -12,7 +12,7 @@ Clusters:
     Db: "/path/to/ip2region.xdb"
   Filters:
     - Action: ip2region
-      Field: clientip
+      Field: remote_addr
       Target: geo
     - Action: remove_field
       Fields:

@@ -21,3 +21,4 @@
 *~
 !OWNERS
 /dist
+/stash/etc/config.yaml
