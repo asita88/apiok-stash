@@ -1,0 +1,95 @@
+Clusters:
+- Input:
+    Kafka:
+      Name: gostash
+      Brokers:
+        - "172.16.186.16:19092"
+        - "172.16.186.17:19092"
+      Topics:
+        - k8slog
+      Group: pro
+      Consumers: 16
+  Filters:
+    - Action: drop
+      Conditions:
+        - Key: k8s_container_name
+          Value: "-rpc"
+          Type: contains
+        - Key: level
+          Value: info
+          Type: match
+          Op: and
+    - Action: remove_field
+      Fields:
+        - message
+        - _source
+        - _type
+        - _score
+        - _id
+        - "@version"
+        - topic
+        - index
+        - beat
+        - docker_container
+        - offset
+        - prospector
+        - source
+        - stream
+    - Action: transfer
+      Field: message
+      Target: data
+  Output:
+    MySQL:
+      DSN: "user:password@tcp(127.0.0.1:3306)/stash"
+      Table: "logs-{{yyyy-MM-dd}}"
+      CreateTableSQL: |
+        CREATE TABLE IF NOT EXISTS `%s` (
+          id bigint unsigned NOT NULL AUTO_INCREMENT,
+          remote_addr VARCHAR(64) NULL,
+          x_forwarded_for VARCHAR(512) NULL,
+          `time` VARCHAR(32) NULL,
+          url TEXT NULL,
+          method VARCHAR(16) NULL,
+          request TEXT NULL,
+          request_length BIGINT NULL,
+          referer TEXT NULL,
+          user_agent TEXT NULL,
+          connection_requests INT NULL,
+          upstream_cache_status VARCHAR(64) NULL,
+          status INT NULL,
+          request_time DOUBLE NULL,
+          upstream_response_time VARCHAR(128) NULL,
+          bytes_sent BIGINT NULL,
+          body_bytes_sent BIGINT NULL,
+          server_name VARCHAR(255) NULL,
+          upstream_addr VARCHAR(512) NULL,
+          upstream_status VARCHAR(128) NULL,
+          request_id VARCHAR(128) NULL,
+          block_reason VARCHAR(512) NULL,
+          block_rule VARCHAR(512) NULL,
+          PRIMARY KEY (id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+      InsertColumns:
+        - remote_addr
+        - x_forwarded_for
+        - time
+        - url
+        - method
+        - request
+        - request_length
+        - referer
+        - user_agent
+        - connection_requests
+        - upstream_cache_status
+        - status
+        - request_time
+        - upstream_response_time
+        - bytes_sent
+        - body_bytes_sent
+        - server_name
+        - upstream_addr
+        - upstream_status
+        - request_id
+        - block_reason
+        - block_rule
+      TimeZone: "Asia/Shanghai"

@@ -1,0 +1,21 @@
+name: Build and Release
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    uses: asita88/ci-templates/.github/workflows/build-release-go.yml@main
+    permissions:
+      contents: write
+    with:
+      app_name: apiok-stash
+      go_version: '1.23'
+      node_version: '18'
+      build_script: scripts/build.sh
+    secrets: inherit

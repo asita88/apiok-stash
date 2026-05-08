@@ -1,0 +1,24 @@
+Clusters:
+- Input:
+    Kafka:
+      Name: gostash
+      Brokers:
+        - "172.16.186.16:19092"
+      Topics:
+        - k8slog
+      Group: pro
+      Consumers: 16
+  Ip2Region:
+    Db: "/path/to/ip2region.xdb"
+  Filters:
+    - Action: ip2region
+      Field: clientip
+      Target: geo
+    - Action: remove_field
+      Fields:
+        - message
+  Output:
+    ElasticSearch:
+      Hosts:
+        - http://172.16.141.4:9200
+      Index: "logs-{{yyyy-MM-dd}}"
