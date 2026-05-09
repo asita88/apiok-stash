@@ -1,47 +1,28 @@
 Clusters:
 - Input:
-    Kafka:
-      Name: gostash
-      Brokers:
-        - "172.16.186.16:19092"
-        - "172.16.186.17:19092"
-      Topics:
-        - k8slog
-      Group: pro
-      Consumers: 16
+    File:
+      Paths:
+        - /opt/apiok/apiok/logs/access.log
+      Format: plain
+      Follow: true
+      FromBeginning: false
+  Ip2Region:
+    Db: "/opt/apiok-stash/ip2region_v4.xdb"
   Filters:
-    - Action: drop
-      Conditions:
-        - Key: k8s_container_name
-          Value: "-rpc"
-          Type: contains
-        - Key: level
-          Value: info
-          Type: match
-          Op: and
+    - Action: transfer
+      Field: message
+    - Action: parse_time
+      Field: time
+    - Action: ip2region
+      Field: remote_addr
+      Target: geo
     - Action: remove_field
       Fields:
         - message
-        - _source
-        - _type
-        - _score
-        - _id
-        - "@version"
-        - topic
-        - index
-        - beat
-        - docker_container
-        - offset
-        - prospector
-        - source
-        - stream
-    - Action: transfer
-      Field: message
-      Target: data
   Output:
     MySQL:
-      DSN: "user:password@tcp(127.0.0.1:3306)/stash"
-      Table: "logs-{{yyyy-MM-dd}}"
+      DSN: "apiok:YdGxr7y5nfwM7HPR@tcp(127.0.0.1:3306)/apiok"
+      Table: "ok-logs-{{yyyy-MM-dd}}"
       CreateTableSQL: |
         CREATE TABLE IF NOT EXISTS `%s` (
           id bigint unsigned NOT NULL AUTO_INCREMENT,
@@ -67,6 +48,11 @@ Clusters:
           request_id VARCHAR(128) NULL,
           block_reason VARCHAR(512) NULL,
           block_rule VARCHAR(512) NULL,
+          geo_country VARCHAR(128) NULL,
+          geo_province VARCHAR(128) NULL,
+          geo_city VARCHAR(128) NULL,
+          geo_isp VARCHAR(128) NULL,
+          geo_country_code VARCHAR(16) NULL,
           PRIMARY KEY (id)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
       InsertColumns:
@@ -92,4 +78,9 @@ Clusters:
         - request_id
         - block_reason
         - block_rule
+        - geo_country
+        - geo_province
+        - geo_city
+        - geo_isp
+        - geo_country_code
       TimeZone: "Asia/Shanghai"

@@ -7,6 +7,7 @@ const (
 	filterRemoveFields = "remove_field"
 	filterTransfer     = "transfer"
 	filterIp2Region    = "ip2region"
+	filterParseTime    = "parse_time"
 	opAnd              = "and"
 	opOr               = "or"
 	typeContains       = "contains"
@@ -32,6 +33,12 @@ func CreateFilters(p config.Cluster, ip2r Ip2RegionSearcher) []FilterFunc {
 			filters = append(filters, TransferFilter(f.Field, f.Target))
 		case filterIp2Region:
 			filters = append(filters, Ip2RegionFilter(ip2r, f.Field, f.Target))
+		case filterParseTime:
+			tz := f.TimeZone
+			if tz == "" {
+				tz = p.Output.MySQL.TimeZone
+			}
+			filters = append(filters, ParseTimeFilter(f.Field, tz))
 		}
 	}
 

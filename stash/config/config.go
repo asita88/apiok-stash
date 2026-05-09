@@ -36,11 +36,12 @@ type (
 	}
 
 	Filter struct {
-		Action     string      `json:",options=drop|remove_field|transfer|ip2region"`
+		Action     string      `json:",options=drop|remove_field|transfer|ip2region|parse_time"`
 		Conditions []Condition `json:",optional"`
 		Fields     []string    `json:",optional"`
 		Field      string      `json:",optional"`
 		Target     string      `json:",optional"`
+		TimeZone   string      `json:",optional"`
 	}
 
 	Ip2RegionConf struct {
