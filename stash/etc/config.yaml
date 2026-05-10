@@ -2,12 +2,12 @@ Clusters:
 - Input:
     File:
       Paths:
-        - /opt/apiok/apiok/logs/access.log
+        - /var/log/apiok/access.log
       Format: plain
       Follow: true
       FromBeginning: false
   Ip2Region:
-    Db: "/opt/apiok-stash/ip2region_v4.xdb"
+    Db: "/data/ip2region_v4.xdb"
   Filters:
     - Action: transfer
       Field: message
